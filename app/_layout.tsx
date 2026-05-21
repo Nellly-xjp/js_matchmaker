@@ -1,36 +1,36 @@
 import { Stack } from 'expo-router';
-import { ThemeProvider, DefaultTheme } from '@react-navigation/native';
-import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet } from 'react-native';
 import { AuthProvider } from './ctx/auth';
 import { ProfilesProvider } from './ctx/profiles';
+import { useEffect } from 'react';
+import { loadFromStorage } from '../hooks/useStorage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// React Query клієнт з кешуванням
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,   // 5 хв кеш
-      gcTime: 10 * 60 * 1000,     // 10 хв у пам'яті
-      retry: 2,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
+  useEffect(() => {
+    loadFromStorage();
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ProfilesProvider>
-          <ThemeProvider value={DefaultTheme}>
+    <GestureHandlerRootView style={styles.container}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ProfilesProvider>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="sign-in" />
               <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="profile/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="person/[id]" options={{ headerShown: false }} />
+              <Stack.Screen name="sign-in" />
+              <Stack.Screen name="index" />
             </Stack>
-          </ThemeProvider>
-        </ProfilesProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+          </ProfilesProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+});

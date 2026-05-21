@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import axios from 'axios';
+import { router } from 'expo-router';
+import { clearStorage } from '../../hooks/useStorage';
 
 type User = { username: string; name: string; token: string };
 
@@ -52,7 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => setUser(null);
+  const logout = async () => {
+    await clearStorage();
+    setUser(null);
+    router.replace('/sign-in');
+  };
 
   return (
     <AuthContext.Provider value={{ user, isLoggedIn: !!user, isLoading, login, logout }}>
